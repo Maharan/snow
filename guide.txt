@@ -1,0 +1,22 @@
+Credits: a lot of the set-up of the Terraform component was done with the help of this snowflake quickstart:
+https://quickstarts.snowflake.com/guide/terraforming_snowflake Note: There are some differences, I think my set up is a bit easier
+
+Open a terminal window (that can read linux) and input the following commands:
+cd ~/.ssh
+openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out snowflake_tf_snow_key.p8 -nocrypt
+openssl rsa -in snowflake_tf_snow_key.p8 -pubout -out snowflake_tf_snow_key.pub
+
+Run the following script on your snowflake console, where 'INSERT' is replaced with the SSH-agent key on your machine 
+(go to C:/Users/YOURNAME/.ssh and open snowflake_tf_snow_key.pub, copy only the key):
+CREATE USER "tf-snow" RSA_PUBLIC_KEY='INSERT' DEFAULT_ROLE=PUBLIC MUST_CHANGE_PASSWORD=FALSE;
+GRANT ROLE SYSADMIN TO USER "tf-snow";
+GRANT ROLE SECURITYADMIN TO USER "tf-snow";
+
+Then find out your snowflake organization code and account code (bottom left on the web console)
+
+Now go back to the terminal and type the following commands
+
+export SNOWFLAKE_USER="tf-snow"
+export SNOWFLAKE_AUTHENTICATOR=JWT
+export SNOWFLAKE_PRIVATE_KEY=`cat ~/.ssh/snowflake_tf_snow_key.p8`
+export SNOWFLAKE_ACCOUNT="ORGANISATIONCODE-ACCOUNTCODE"
