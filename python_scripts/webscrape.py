@@ -14,17 +14,7 @@ from dotenv import load_dotenv, dotenv_values
 from snowflake.connector.pandas_tools import write_pandas
 import snowflake.connector
 
-# start timer
-start_time = time.time()
-
-# root url string
-urlroot = 'https://www.olympiandatabase.com'
-
-# create dataframe
-columnnames = ['CITY', 'YR', 'TYPE', 'SPORT', 'EVENT', 'MEDAL', 'COUNTRY_CODE', 'ATHLETE_FULL_NAME', 'TIME_ADDED']
-dummy = [['Askaban', '1234', 'Winter', 'Quidditch', 'Team M', 'Gold', 'GRY', 'Harry Potter', '2024-05-14 01:24:27.978238'], ['Askaban', '1134', 'Winter', 'Quidditch', 'Team M', 'Gold', 'SLY', 'Tom Riddle', '2024-05-14 01:24:26.978238']]
-maintable = pd.DataFrame(dummy, columns = columnnames)
-
+# DEFINE METHODS
 # Async helper function
 async def helper(client, url):
         page = await client.get(url, timeout = None)
@@ -185,6 +175,18 @@ def get_olympics(url):
             nexturl = urlroot + str(thing.next_sibling.next_sibling.a['href'])
             counter += 1
             get_sports(nexturl, list_of_values)
+
+# DEFINE CODE TO RUN
+# start timer
+start_time = time.time()
+
+# root url string
+urlroot = 'https://www.olympiandatabase.com'
+
+# create dataframe
+columnnames = ['CITY', 'YR', 'TYPE', 'SPORT', 'EVENT', 'MEDAL', 'COUNTRY_CODE', 'ATHLETE_FULL_NAME', 'TIME_ADDED']
+dummy = [['Askaban', '1234', 'Winter', 'Quidditch', 'Team M', 'Gold', 'GRY', 'Harry Potter', '2024-05-14 01:24:27.978238'], ['Askaban', '1134', 'Winter', 'Quidditch', 'Team M', 'Gold', 'SLY', 'Tom Riddle', '2024-05-14 01:24:26.978238']]
+maintable = pd.DataFrame(dummy, columns = columnnames)
 
 # Three times faster than in sequence
 get_olympics('https://www.olympiandatabase.com/index.php?id=278979&L=1')
