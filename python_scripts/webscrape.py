@@ -15,7 +15,7 @@ from snowflake.connector.pandas_tools import write_pandas
 import snowflake.connector
 
 # DEFINE METHODS
-# Async helper function
+# Async helper function to get the scrapped html body of the webpage
 async def helper(client, url):
         page = await client.get(url, timeout = None)
         soup = BeautifulSoup(page.text, 'html.parser')
