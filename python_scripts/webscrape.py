@@ -19,7 +19,6 @@ import snowflake.connector
 async def helper(client, url):
         page = await client.get(url, timeout = None)
         soup = BeautifulSoup(page.text, 'html.parser')
-        #print("hello")
         return soup
 
 # At this point, we have ['city', 'year', 'type', 'sport', event, medal, country code]
@@ -47,10 +46,10 @@ def get_people(soup, list_of_values):
             # If we have any such match, this means that it isn't a team event without individual names
             discriminant = discriminant & False
             # Medal
-            if str(thing)[68:74] == "Gold_m":
+            if str(thing.img)[68:74] == "Gold_m":
                 list_of_values_copy.append("Gold")
             else:
-                list_of_values_copy.append(str(thing)[68:74])
+                list_of_values_copy.append(str(thing.img)[68:74])
             # Country Code
             list_of_values_copy.append(thing.next_sibling.next_sibling.next_sibling.get_text())
             # (first) athlete's full name and time
@@ -109,10 +108,6 @@ def get_events(soup, list_of_values):
 
             ans = await asyncio.gather(*tasks)
 
-            print(type(ans))
-            for soup in ans:
-                print(type(soup))
-
             for number in range(0,number_of_events):
                 list_of_events_urls[number].append(ans[number])
                 
@@ -134,7 +129,6 @@ def get_sports(url, list_of_values):
         list_of_values_copy = list_of_values.copy()
         # Sport
         list_of_values_copy.append(thing.next_sibling.next_sibling.get_text())
-        print(len(list_of_values_copy))
         nexturl = urlroot + str(thing.next_sibling.next_sibling.a['href'])
         list_of_sports_urls.append([nexturl, list_of_values_copy])
     number_of_sports = len(list_of_sports_urls)
@@ -148,10 +142,6 @@ def get_sports(url, list_of_values):
                 tasks.append(asyncio.ensure_future(helper(client, url)))
 
             ans = await asyncio.gather(*tasks)
-
-            print(type(ans))
-            for soup in ans:
-                print(type(soup))
                 
             for number in range(0,number_of_sports):
                 list_of_sports_urls[number].append(ans[number])
@@ -168,13 +158,14 @@ def get_olympics(url):
     soup = BeautifulSoup(page.text, 'html.parser')
     counter = 0
     for thing in soup.find_all("td", height = "35"):
-        if len(thing.next_sibling.next_sibling.next_sibling.get_text())>0 and counter < 10:
-            list_of_values = []
-            list_of_values.append(str(thing.next_sibling.next_sibling.get_text())[0:-5])
-            list_of_values.append(str(thing.next_sibling.next_sibling.get_text())[-4:])
-            nexturl = urlroot + str(thing.next_sibling.next_sibling.a['href'])
+        if len(thing.next_sibling.next_sibling.next_sibling.get_text())>0:
+            if counter > 44 and counter < 46:
+                list_of_values = []
+                list_of_values.append(str(thing.next_sibling.next_sibling.get_text())[0:-5])
+                list_of_values.append(str(thing.next_sibling.next_sibling.get_text())[-4:])
+                nexturl = urlroot + str(thing.next_sibling.next_sibling.a['href'])
+                get_sports(nexturl, list_of_values)
             counter += 1
-            get_sports(nexturl, list_of_values)
 
 # DEFINE CODE TO RUN
 # start timer
@@ -202,5 +193,5 @@ conn = snowflake.connector.connect(
     database = "TF_DEMO",  # optional
     schema = "RAW",  # optional 
 )
-success, nchunks, nrows, _ = write_pandas(conn, maintable, 'RAW_FCT_TABLE')
+success, nchunks, nrows, _ = write_pandas(conn, maintable, 'RAW_FCT_TABLE_1')
 print("--- %s seconds ---" % (time.time() - start_time))

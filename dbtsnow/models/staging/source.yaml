@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: demo
+    schema: RAW
+    tables:
+      - name: raw_fact
+        identifier: RAW_FCT_TABLE_1
