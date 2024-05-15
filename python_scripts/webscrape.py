@@ -153,13 +153,13 @@ def get_sports(url, list_of_values):
         # Get athlete, send values url and the values array
         get_events(i[2], i[1])
 
-def get_olympics(url):
+def get_olympics(url, from_number, to_number):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
     counter = 0
     for thing in soup.find_all("td", height = "35"):
         if len(thing.next_sibling.next_sibling.next_sibling.get_text())>0:
-            if counter > 44 and counter < 46:
+            if counter >= from_number and counter <= to_number:
                 list_of_values = []
                 list_of_values.append(str(thing.next_sibling.next_sibling.get_text())[0:-5])
                 list_of_values.append(str(thing.next_sibling.next_sibling.get_text())[-4:])
@@ -175,12 +175,12 @@ start_time = time.time()
 urlroot = 'https://www.olympiandatabase.com'
 
 # create dataframe
-columnnames = ['CITY', 'YR', 'TYPE', 'SPORT', 'EVENT', 'MEDAL', 'COUNTRY_CODE', 'ATHLETE_FULL_NAME', 'TIME_ADDED']
+columnnames = ['CITY', 'YR', 'SEASON', 'SPORT', 'EVENT', 'MEDAL', 'COUNTRY_CODE', 'ATHLETE_FULL_NAME', 'TIME_ADDED']
 dummy = [['Askaban', '1234', 'Winter', 'Quidditch', 'Team M', 'Gold', 'GRY', 'Harry Potter', '2024-05-14 01:24:27.978238'], ['Askaban', '1134', 'Winter', 'Quidditch', 'Team M', 'Gold', 'SLY', 'Tom Riddle', '2024-05-14 01:24:26.978238']]
 maintable = pd.DataFrame(dummy, columns = columnnames)
 
 # Three times faster than in sequence
-get_olympics('https://www.olympiandatabase.com/index.php?id=278979&L=1')
+get_olympics('https://www.olympiandatabase.com/index.php?id=278979&L=1', 0, 10)
 
 # Open the Snowflake connection
 load_dotenv()
